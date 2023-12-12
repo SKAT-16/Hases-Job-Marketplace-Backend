@@ -17,8 +17,9 @@ app.use('/api/register', registerRoute);
 app.use('/api/vacancy', vacanciesRoute);
 
 const port = process.env.port || 3000;
+const dbUrl = process.env.ATLAS_DATABASE || "mongodb://127.0.0.1:27017/job-market-place";
 app.listen(port, () => console.log(`Server started on port ${port}`));
 mongoose
-    .connect('mongodb://127.0.0.1:27017/job-market-place')
+    .connect(dbUrl)
     .then((mdb) => console.log(`Database connected on port ${mdb.connection.port}`))
     .catch((reason) => console.log(`\nError connecting to database: \n${reason}`));
