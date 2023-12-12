@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 
 const jobCategorySchema = new mongoose.Schema({
-  job_category: String,
+  category: String,
+  jobs: [String],
+  tags: [String]
 });
 
 

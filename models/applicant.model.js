@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const applicantSchema = new mongoose.Schema({
-  vacancy_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Vacancy' },
-  job_seeker_id: { type: mongoose.Schema.Types.ObjectId, ref: 'JobSeeker' },
+  vacancy_id: mongoose.Schema.Types.ObjectId,
+  job_seeker_id: mongoose.Schema.Types.ObjectId,
   apply_date: { type: Date, default: Date.now },
   cover_letter: String,
   status: String

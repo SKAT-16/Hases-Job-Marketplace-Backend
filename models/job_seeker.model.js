@@ -6,19 +6,23 @@ const jobSeekerSchema = new mongoose.Schema({
   last_name: String,
   email: String,
   password: String,
-  contact_number: [String],
+  phone: String,
   gender: String,
   dob: Date,
   profile_details: {
-    user_image: mongoose.Schema.Types.Buffer,
+    user_image: {
+      type: Buffer,
+      default: null,
+      contentType: String
+    },
     education: [{
       certificate_degree_name: String,
       major: String,
       institue_university_name: String,
       starting_date: Date,
       completion_date: Date,
-      percentage: Number,
-      cgpa: Number
+      percentage: {type: Number, default: 0},
+      cgpa: {type: Number, default: 0}
     }],
     experience: [{
       job_title: String,
@@ -28,7 +32,7 @@ const jobSeekerSchema = new mongoose.Schema({
       start_date: Date,
       end_date: Date
     }],
-    skill_set: [String],
+    skill_set: String,
     resume: mongoose.Schema.Types.Buffer
   },
   profile_completed: {
@@ -47,7 +51,7 @@ const validateJobSeekerAccount = function (jobSeekerAccount) {
     last_name: Joi.string().min(2).max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
-    contact_number: Joi.array().items(Joi.string().pattern(/^\d{10}$/)).min(1).required(),
+    phone: Joi.string().pattern(/^(\+251|0)[1-57-9]\d{8}$/).required(),
     gender: Joi.string().valid('Male', 'Female').required(),
     dob: Joi.date().iso().required()
   });
@@ -65,7 +69,7 @@ const validateJobSeekerProfile = function (jobSeekerProfile) {
       starting_date: Joi.date().required(),
       completion_date: Joi.date().required(),
       percentage: Joi.number().optional(),
-      cgpa: Joi.number().optional()
+      cgpa: Joi.number().required()
     })).min(1).required(),
     experience: Joi.array().items(Joi.object({
       job_title: Joi.string().required(),
@@ -74,8 +78,8 @@ const validateJobSeekerProfile = function (jobSeekerProfile) {
       description: Joi.string().required(),
       start_date: Joi.date().required(),
       end_date: Joi.date().required()
-    })).min(1).optional(),
-    skill_set: Joi.array().items(Joi.string()).min(1).required(),
+    })).optional(),
+    skill_set: Joi.string().optional(),
     resume: Joi.binary().optional()
   });
 

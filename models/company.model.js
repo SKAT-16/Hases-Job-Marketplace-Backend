@@ -5,13 +5,20 @@ const companySchema = new mongoose.Schema({
   company_name: String,
   company_email: String,
   password: String,
-  contact_number: [String],
+  phone: String,
   profile_details: {
-    company_logo: mongoose.Schema.Types.Buffer,
+    company_logo: {
+      type: Buffer,
+      default: null,
+      contentType: String
+    },
     buisness_stream: String,
     profile_description: String,
     establishment_date: Date,
-    company_website: String
+    company_website: {
+      type: String,
+      default: "-"
+    }
   },
   profile_completed: {
     type: Boolean,
@@ -27,16 +34,15 @@ const validateCompanyAccount = function (companyAccount) {
     company_name: Joi.string().min(2).required(),
     company_email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
-    contact_number: Joi.array().items(Joi.string().pattern(/^\d{10}$/)).min(1).required()
+    phone: Joi.string().pattern(/^(\+251|0)[1-57-9]\d{8}$/).required()
   });
-
 
   return schema.validate(companyAccount);
 }
 
 const validateCompanyProfile = function (companyProfile) {
   const schema = Joi.object({
-    company_logo: Joi.binary().required(),
+    company_logo: Joi.binary().optional(),
     buisness_stream: Joi.string().required(),
     profile_description: Joi.string().required(),
     establishment_date: Joi.date().required(),
