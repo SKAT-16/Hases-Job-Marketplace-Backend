@@ -8,11 +8,13 @@ const vacancySchema = new mongoose.Schema({
   description: String,
   location: String,
 
-  job_category: String,
+  job_category: mongoose.Schema.Types.ObjectId,
+  job_tags: [mongoose.Schema.Types.ObjectId],
+  job_skills: [String],
+  
   employment_type: String,
   salary: Number,
   job_level: String,
-  skill_set: String,
 
   created_at: { type: Date, default: Date.now },
   updated_at: Date
@@ -25,11 +27,14 @@ const validateVacancy = function (vacancy) {
     title: Joi.string().required(),
     description: Joi.string().required(),
     location: Joi.string().required(),
+
     job_category: Joi.string().required(),
+    job_tags: Joi.array().items(Joi.string().required()).min(1).required(),
+    job_skills: Joi.array().items(Joi.string().required()).min(1).required(),
+
     employment_type: Joi.string(),
     salary: Joi.number().min(0).required(),
     job_level: Joi.string().required(),
-    skill_set: Joi.string().required(),
   });
 
   return schema.validate(vacancy);

@@ -6,6 +6,7 @@ const employersRoute = require('./routes/companies.route');
 const authRoute = require('./routes/auth.route');
 const registerRoute = require('./routes/register.route');
 const vacanciesRoute = require('./routes/vacancies.route');
+const uploadFilesRoute = require('./routes/upload.route');
 
 const app = express();
 app.use(express.json());
@@ -15,9 +16,13 @@ app.use('/api/company', employersRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/register', registerRoute);
 app.use('/api/vacancy', vacanciesRoute);
+app.use('/api/upload', uploadFilesRoute);
 
-const port = process.env.port || 3000;
-const dbUrl = process.env.ATLAS_DATABASE || "mongodb://127.0.0.1:27017/job-market-place";
+//const port = process.env.PORT;
+//const dbUrl = process.env.ATLAS_DATABASE;
+const port = 3000;
+const dbUrl = "mongodb://127.0.0.1:27017/job-market-place";
+
 app.listen(port, () => console.log(`Server started on port ${port}`));
 mongoose
     .connect(dbUrl)

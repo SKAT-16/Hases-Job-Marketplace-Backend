@@ -17,9 +17,9 @@ router
     const query = {};
     if (search) {
       query.$or = [
+        { company_name: new RegExp(search, 'i') },
         { title: new RegExp(search, 'i') },
-        { description: new RegExp(search, 'i') },
-        { location: new RegExp(search, 'i')}
+        { location: new RegExp(search, 'i') }
       ]
     }
 
@@ -39,14 +39,15 @@ router
       query.job_level = level;
     }
 
-    console.log(query);
+    const vacancyCount = await Vacancy.countDocuments(query);
+    let pagedVacancies = [];
+    if (vacancyCount !== 0)
+      pagedVacancies = await Vacancy.find(query)
+        .select('_id company_id company_name title job_category employment_type job_level')
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize);
 
-    const vacancies = await Vacancy.find(query)
-      .select('_id company_id company_name title job_category employment_type job_level')
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize); const totalPages = Math.ceil(vacancies.length / pageSize);
-
-    res.send({ vacancies, totalPages });
+    res.send({ pagedVacancies, vacancyCount });
   });
 
 router
