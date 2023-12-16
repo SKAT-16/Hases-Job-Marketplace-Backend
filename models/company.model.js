@@ -17,7 +17,7 @@ const companySchema = new mongoose.Schema({
   establishment_date: Date,
   company_website: {
     type: String,
-    default: "-"
+    default: ""
   },
 
   profile_completed: {
@@ -36,7 +36,7 @@ const validateCompanyProfile = function (companyProfile) {
     company_email: Joi.string().email().required(),
     phone: Joi.string().pattern(/^(\+251|0)[1-57-9]\d{8}$/).required(),
 
-    company_logo: Joi.binary().optional(),
+    company_logo: Joi.string().required(),
     buisness_stream: Joi.string().required(),
     profile_description: Joi.string().required(),
     establishment_date: Joi.date().required(),
@@ -55,7 +55,6 @@ const checkCompanyProfileCompletion = (companyProfile) => {
       company_name,
       company_email,
       phone,
-      
       company_logo,
       buisness_stream,
       profile_description,

@@ -1,4 +1,3 @@
-const authorization = require('../middleware/authorization');
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -11,8 +10,8 @@ const accessToken = process.env.DROPBOX_ACCESS_TOKEN; // Replace with your own a
 const dropbox = new Dropbox({ accessToken });
 
 router.post('/', upload.single('file'), (req, res) => {
-  const fileType = req.params.file;
-  const accountType = req.params.account;
+  const fileType = req.query.file;
+  const accountType = req.query.account;
   if (!req.file) {
     console.log(req.file);
     res.status(400).send('No file uploaded.');
@@ -24,7 +23,7 @@ router.post('/', upload.single('file'), (req, res) => {
   const fileData = fs.readFileSync(req.file.path);
   
   const uploadOptions = {
-    path: `/hases-${accountType}-data/${fileType}/${req.body.user_id}.${fileExtension}`,
+    path: `/${accountType}-data/${fileType}/${req.body.user_id}.${fileExtension}`,
     contents: fileData,
     mode: 'overwrite' // Overwrite existing file with the same name
   };
@@ -33,17 +32,30 @@ router.post('/', upload.single('file'), (req, res) => {
     .then((response) => {
       const fileMetadata = response.result;
 
-      dropbox.sharingCreateSharedLinkWithSettings({ path: fileMetadata.path_display })
-        .then((linkResponse) => {
-          const sharedLink = linkResponse.result.url;
-
-          fs.unlinkSync(req.file.path); // Delete the temporary file
-
-          res.send({ fileLink: sharedLink });
+      dropbox.sharingListSharedLinks({ path: fileMetadata.path_display })
+        .then((listResponse) => {
+          const sharedLinks = listResponse.result.links;
+          if (sharedLinks.length > 0) {
+            const sharedLink = sharedLinks[0].url;
+            res.send({ fileLink: sharedLink });
+          } else {
+            dropbox.sharingCreateSharedLinkWithSettings({ path: fileMetadata.path_display })
+              .then((linkResponse) => {
+                const sharedLink = linkResponse.result.url;
+  
+                fs.unlinkSync(req.file.path);
+  
+                res.send({ fileLink: sharedLink });
+              })
+              .catch((error) => {
+                console.error('Error generating shared link:', error);
+                res.status(500).send('Error generating shared link.');
+              });
+          }
         })
         .catch((error) => {
-          console.error('Error generating shared link:', error);
-          res.status(500).send('Error generating shared link.');
+          console.error('Error retrieving shared link:', error);
+          res.status(500).send('Error retrieving shared link.');
         });
     })
     .catch((error) => {
