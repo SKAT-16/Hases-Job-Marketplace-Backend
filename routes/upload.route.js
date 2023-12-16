@@ -37,14 +37,15 @@ router.post('/', upload.single('file'), (req, res) => {
           const sharedLinks = listResponse.result.links;
           if (sharedLinks.length > 0) {
             const sharedLink = sharedLinks[0].url;
+            // Delete the file from the 'uploads/' folder
+            fs.unlinkSync(req.file.path);
             res.send({ fileLink: sharedLink });
           } else {
             dropbox.sharingCreateSharedLinkWithSettings({ path: fileMetadata.path_display })
               .then((linkResponse) => {
                 const sharedLink = linkResponse.result.url;
-  
+                // Delete the file from the 'uploads/' folder
                 fs.unlinkSync(req.file.path);
-  
                 res.send({ fileLink: sharedLink });
               })
               .catch((error) => {
