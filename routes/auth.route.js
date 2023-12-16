@@ -6,7 +6,7 @@ const router = express.Router();
 const {User, validateUserAccount} = require('../models/user.model');
 
 router.post('/', async (req, res) => {
-  const {error} = validateUserAccount(req.body);
+  const {error} = validateCredentials(req.body);
   if(error) return res.status(400).send(error.details[0].message);
 
   let user = await User.findOne({$or : [
@@ -22,4 +22,12 @@ router.post('/', async (req, res) => {
   res.send({token, role: user.role});
 });
 
+const validateCredentials = (data) => {
+  const schema = Joi.object({
+    credential: Joi.string().required(),
+    password: Joi.string().min(8).required()
+  });
+
+  return schema.validate(data);
+}
 module.exports = router;

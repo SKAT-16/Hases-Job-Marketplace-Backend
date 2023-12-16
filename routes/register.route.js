@@ -16,7 +16,10 @@ router
     if (error) return res.status(400).send(error.details[0].message);
 
     let user = await User.findOne({ email: req.body.email });
-    if (user) return res.status(400).send('User already registered');
+    if (user) return res.status(400).send('Email already in use.');
+
+    user = await User.findOne({ user_name: req.body.user_name });
+    if (user) return res.status(400).send('Username already in use.');
 
     user = new User(req.body);
 
@@ -26,40 +29,6 @@ router
 
     const token = jwt.sign({ _id: user._id }, process.env.JWT_PRIVATE_KEY);
     res.send(token);
-  })
-  .post('/job-seeker/profile', authorization, async (req, res) => {
-    const { error } = validateJobSeekerProfile(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
-    req.body.user_id = new mongoose.Types.ObjectId(req.user_id);
-    let user = await User.findOne({ user_id: req.body.user_id });
-    if (!user) return res.status(400).send("User hasn't registered yet!");
-
-    user.role = 'job-seeker';
-    await user.save();
-
-    user = new JobSeeker(req.body);
-    user.profile_completed = checkJobSeekerProfileCompletion(req.body);
-    user = await user.save();
-
-    res.send(`Job-Seeker: ${user._id} profile saved!`);
-  })
-  .post('/company/profile', authorization, async (req, res) => {
-    const { error } = validateCompanyProfile(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
-    req.body.user_id = new mongoose.Types.ObjectId(req.user_id);
-    let user = await User.findOne({ user_id: req.body.user_id });
-    if (!user) return res.status(400).send("User hasn't registered yet!");
-
-    user.role = 'job-seeker';
-    await user.save();
-
-    user = new Company(req.body);
-    user.profile_completed = checkCompanyProfileCompletion(req.body);
-    user = await user.save();
-
-    res.send(`Company: ${user._id} profile saved!`);
   });
 
 
