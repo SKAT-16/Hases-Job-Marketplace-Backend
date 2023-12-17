@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const jobCategorySchema = new mongoose.Schema({
-  category: String,
-  skills: [String]
+  category_name: String,
+  required_skills: [String]
 });
 
 

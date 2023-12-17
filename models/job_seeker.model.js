@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 const jobSeekerSchema = new mongoose.Schema({
-  user_id: mongoose.Schema.Types.ObjectId,
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
   first_name: String,
   last_name: String,
@@ -32,7 +32,7 @@ const jobSeekerSchema = new mongoose.Schema({
     start_date: Date,
     end_date: Date
   }],
-  job_set: [mongoose.Schema.Types.ObjectId],
+  job_set: [{ type: mongoose.Schema.Types.ObjectId, ref: 'JobCategory' }],
   skill_set: [String],
   resume: {
     type: String,

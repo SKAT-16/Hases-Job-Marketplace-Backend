@@ -1,6 +1,4 @@
-const authorization = require('../middleware/authorization');
 const express = require('express');
-const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 

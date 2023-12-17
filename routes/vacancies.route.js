@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const authorization = require('../middleware/authorization');
 const { Vacancy, validateVacancy } = require('../models/vacancy.model');
 const JobCategory = require('../models/job_category.model');
+const {Company} = require('../models/company.model');
 
 router
   .get('/', authorization, async (req, res) => {
@@ -44,7 +45,9 @@ router
     let pagedVacancies = [];
     if (vacancyCount !== 0)
       pagedVacancies = await Vacancy.find(query)
-        .select('_id company_id company_name company_logo title job_category employment_type job_level')
+        .select('_id company_id title job_category employment_type job_level')
+        .populate('company_id', 'company_name company_logo')
+        .populate('job_category', 'category_name')
         .skip((pageNumber - 1) * pageSize)
         .limit(pageSize);
 
@@ -54,7 +57,7 @@ router
     const { error } = validateVacancy(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    req.body.company_id = new mongoose.Types.ObjectId(req.user_id);
+    req.body.company_id = new mongoose.Types.ObjectId(await Company.findOne({user_id: req.user_id}));
     let vacancy = new Vacancy(req.body);
     vacancy = await vacancy.save();
 

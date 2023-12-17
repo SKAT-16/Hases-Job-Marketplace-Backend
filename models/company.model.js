@@ -2,7 +2,7 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 
 const companySchema = new mongoose.Schema({
-  user_id: mongoose.Schema.Types.ObjectId,
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
   company_name: String,
   company_email: String,

@@ -2,15 +2,13 @@ const mongoose = require('mongoose');
 const Joi = require("joi");
 
 const vacancySchema = new mongoose.Schema({
-  company_id: mongoose.Schema.Types.ObjectId,
-  company_name: String,
-  company_logo: String,
-
+  company_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+  
   title: String,
   description: String,
   location: String,
 
-  job_category: mongoose.Schema.Types.ObjectId,
+  job_category: { type: mongoose.Schema.Types.ObjectId, ref: 'JobCategory' },
   job_skills: [String],
 
   openings: Number,
@@ -25,9 +23,6 @@ const vacancySchema = new mongoose.Schema({
 const Vacancy = mongoose.model('Vacancy', vacancySchema);
 const validateVacancy = function (vacancy) {
   const schema = Joi.object({
-    company_name: Joi.string().required(),
-    company_logo: Joi.string().required(),
-
     title: Joi.string().required(),
     description: Joi.string().required(),
     location: Joi.string().required(),
