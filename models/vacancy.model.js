@@ -13,6 +13,7 @@ const vacancySchema = new mongoose.Schema({
   job_category: mongoose.Schema.Types.ObjectId,
   job_skills: [String],
 
+  openings: Number,
   employment_type: String,
   salary: Number,
   job_level: String,
@@ -34,6 +35,7 @@ const validateVacancy = function (vacancy) {
     job_category: Joi.string().required(),
     job_skills: Joi.array().items(Joi.string().required()).min(1).required(),
 
+    openings: Joi.number().min(1),
     employment_type: Joi.string(),
     salary: Joi.number().min(0).required(),
     job_level: Joi.string().required(),

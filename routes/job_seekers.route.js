@@ -36,9 +36,6 @@ router
     let user = await User.findById(req.user_id);
     if (!user) return res.status(400).send("User hasn't registered yet!");
 
-    user.role = 'job-seeker';
-    await user.save();
-
     user = new JobSeeker(req.body);
     user.user_id = req.user_id;
     user.profile_completed = checkJobSeekerProfileCompletion(req.body);
