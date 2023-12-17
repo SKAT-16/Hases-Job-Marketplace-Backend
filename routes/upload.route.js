@@ -10,17 +10,17 @@ const accessToken = process.env.DROPBOX_ACCESS_TOKEN; // Replace with your own a
 const dropbox = new Dropbox({ accessToken });
 
 router.post('/', upload.single('file'), (req, res) => {
-  const fileType = req.query.file;
-  const accountType = req.query.account;
-  if (!req.file) {
+  const fileType = req.query.fileType;
+  const accountType = req.query.accountType;
+  if (!req.body.file) {
     console.log(req.file);
     res.status(400).send('No file uploaded.');
     return;
   }
 
-  const fileName = req.file.originalname;
+  const fileName = req.body.file.originalname;
   const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
-  const fileData = fs.readFileSync(req.file.path);
+  const fileData = fs.readFileSync(req.body.file.path);
   
   const uploadOptions = {
     path: `/${accountType}-data/${fileType}/${req.body.user_id}.${fileExtension}`,
@@ -38,25 +38,25 @@ router.post('/', upload.single('file'), (req, res) => {
           if (sharedLinks.length > 0) {
             const sharedLink = sharedLinks[0].url;
             // Delete the file from the 'uploads/' folder
-            fs.unlinkSync(req.file.path);
+            fs.unlinkSync(req.body.file.path);
             res.send({ fileLink: sharedLink });
           } else {
             dropbox.sharingCreateSharedLinkWithSettings({ path: fileMetadata.path_display })
               .then((linkResponse) => {
                 const sharedLink = linkResponse.result.url;
                 // Delete the file from the 'uploads/' folder
-                fs.unlinkSync(req.file.path);
+                fs.unlinkSync(req.body.file.path);
                 res.send({ fileLink: sharedLink });
               })
               .catch((error) => {
                 console.error('Error generating shared link:', error);
-                res.status(500).send('Error generating shared link.');
+                return res.status(500).send('Error generating shared link.');
               });
           }
         })
         .catch((error) => {
           console.error('Error retrieving shared link:', error);
-          res.status(500).send('Error retrieving shared link.');
+          return res.status(500).send('Error retrieving shared link.');
         });
     })
     .catch((error) => {

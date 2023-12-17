@@ -3,7 +3,6 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const authorization = require('../middleware/authorization');
 const { Vacancy, validateVacancy } = require('../models/vacancy.model');
-const JobCategory = require('../models/job_category.model');
 
 router
   .get('/', authorization, async (req, res) => {
@@ -44,12 +43,14 @@ router
     let pagedVacancies = [];
     if (vacancyCount !== 0)
       pagedVacancies = await Vacancy.find(query)
-        .select('_id company_id company_name company_logo title job_category employment_type job_level')
+        .select('_id company_id company_name title job_category employment_type job_level')
         .skip((pageNumber - 1) * pageSize)
         .limit(pageSize);
 
     res.send({ pagedVacancies, vacancyCount });
-  })
+  });
+
+router
   .post('/new', authorization, async (req, res) => {
     const { error } = validateVacancy(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -60,17 +61,10 @@ router
 
     res.send(`Vacancy: ${vacancy._id} saved!`);
   })
-  .put('/edit', authorization, async (req, res) => {
-    const { error } = validateVacancy(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-
-    let vacancy = new Vacancy.findById(req.body.vacancy_id);
-    if(!vacancy) return res.status(400).send("Vacancy not found!");
-
-    vacancy.set(req.body);
-    vacancy = await vacancy.save();
-
-    res.send(`Vacancy: ${vacancy._id} updated!`);
+  .post('/many', async (req, res) => {
+    const vacancies = req.body;
+    const insertedVacancies = await Vacancy.insertMany(vacancies);
+    res.send(`Inserted ${insertedVacancies.length} vacancies successfully!`);
   });
 
 module.exports = router;

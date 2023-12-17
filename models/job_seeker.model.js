@@ -32,8 +32,8 @@ const jobSeekerSchema = new mongoose.Schema({
     start_date: Date,
     end_date: Date
   }],
-  job_tag: [mongoose.Schema.Types.ObjectId],
-  skill_set: [mongoose.Schema.Types.ObjectId],
+  job_set: [mongoose.Schema.Types.ObjectId],
+  skill_set: [String],
   resume: {
     type: String,
     default: "",
@@ -76,7 +76,7 @@ const validateJobSeekerProfile = function (jobSeekerProfile) {
       start_date: Joi.date().required(),
       end_date: Joi.date().required()
     })).optional(),
-    job_tag: Joi.array().items(Joi.string().required()).min(1).required(),
+    job_set: Joi.array().items(Joi.string().required()).min(1).required(),
     skill_set: Joi.array().items(Joi.string().required()).min(1).required(),
     resume: Joi.string().optional()
   });
@@ -100,7 +100,7 @@ const checkJobSeekerProfileCompletion = (jobSeekerProfile) => {
       user_image,
       education,
       experience,
-      job_tag,
+      job_set,
       skill_set,
       resume
     } = jobSeekerProfile;
@@ -117,8 +117,8 @@ const checkJobSeekerProfileCompletion = (jobSeekerProfile) => {
       education.length > 0 &&
       experience &&
       experience.length > 0 &&
-      job_tag &&
-      job_tag.length > 0 &&
+      job_set &&
+      job_set.length > 0 &&
       skill_set &&
       skill_set.length > 0 &&
       resume
