@@ -6,11 +6,21 @@ const multer = require('multer');
 
 const { User } = require('../models/user.model');
 const { Company, checkCompanyProfileCompletion, validateCompanyProfile } = require('../models/company.model');
+const JobCategory = require('../models/job_category.model');
 
 const upload = multer({ dest: 'uploads/' });
 const router = express.Router();
 
 router
+  .get('/categories', authorization, async (req, res) => {
+    let categories = await JobCategory.find({}).select('category');
+    res.send(categories);
+  })
+  .get('/:category_id/skills', authorization, async (req, res) => {
+    const category_id = req.params.category_id;
+    let skills = await JobCategory.find({_id: category_id}).select('skills');
+    res.send(skills);
+  })
   .post('/new-profile', [authorization, upload.single("file")], async (req, res) => {
     const { error } = validateCompanyProfile(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -19,7 +29,7 @@ router
       req.body.company_logo = response.data.fileLink + "&raw=1";
       console.log(req.body.company_logo);
     }
-    
+
     req.user_id = new mongoose.Types.ObjectId(req.user_id);
     let user = await User.findById(req.user_id);
     if (!user) return res.status(400).send("User hasn't registered yet!");
