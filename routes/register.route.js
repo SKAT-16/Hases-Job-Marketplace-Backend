@@ -1,8 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
 const { User, validateUserAccount } = require('../models/user.model');
+const mailSender = require('../utils/mailer');
 
 const router = express.Router();
 
@@ -19,14 +19,25 @@ router
 
     user = new User(req.body);
     user.role = req.body.role;
+
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
-    
-    user = await user.save();
 
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_PRIVATE_KEY);
-    res.send(token);
+    user.verification.code = generateVerificationCode();
+    const emailStatus = await mailSender(user.email, user.verification.code);
+    if (!emailStatus.response.includes('OK'))
+      return res.status(400).send('Unable to send verification code!');
+
+    user = await user.save();
+    res.send('User registered successfully!');
   });
 
+function generateVerificationCode() {
+  const codeLength = 6;
+  const min = Math.pow(10, codeLength - 1);
+  const max = Math.pow(10, codeLength) - 1;
+  const verificationCode = Math.floor(Math.random() * (max - min + 1)) + min;
+  return verificationCode.toString();
+}
 
 module.exports = router;

@@ -19,11 +19,19 @@ router
       try {
         let response;
         if (req.files[0]) {
-          response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=job-seeker', { file: req.files[0], user_id: req.user_id });
+          if (process.env.STATUS === "PRODUCTION")
+            response = await axios.post('https://hases-backend.onrender.com/api/upload?fileType=image&accountType=job-seeker', { file: req.files[0], user_id: req.user_id });
+          else
+            response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=job-seeker', { file: req.files[0], user_id: req.user_id });
+
           req.body.user_image = response.data.fileLink + "&raw=1";
         }
         if (req.files[1]) {
-          response = await axios.post('http://localhost:3000/api/upload?fileType=resume&accountType=job-seeker', { file: req.files[1], user_id: req.user_id });
+          if (process.env.STATUS === "PRODUCTION")
+            response = await axios.post('https://hases-backend.onrender.com/api/upload?fileType=resume&accountType=job-seeker', { file: req.files[1], user_id: req.user_id });
+          else
+            response = await axios.post('http://localhost:3000/api/upload?fileType=resume&accountType=job-seeker', { file: req.files[1], user_id: req.user_id });
+
           req.body.resume = response.data.fileLink.replace('dl=0', 'dl=1');
         }
       } catch (ex) { console.log("Error uploading files!"); }
@@ -48,11 +56,17 @@ router
       try {
         let response;
         if (req.files[0]) {
-          response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=job-seeker', { file: req.files[0], user_id: req.user_id });
+          if (process.env.STATUS === "PRODUCTION")
+            response = await axios.post('https://hases-backend.onrender.com/api/upload?fileType=image&accountType=job-seeker', { file: req.files[0], user_id: req.user_id });
+          else
+            response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=job-seeker', { file: req.files[0], user_id: req.user_id });
           req.body.user_image = response.data.fileLink + "&raw=1";
         }
         if (req.files[1]) {
-          response = await axios.post('http://localhost:3000/api/upload?fileType=resume&accountType=job-seeker', { file: req.files[1], user_id: req.user_id });
+          if (process.env.STATUS === "PRODUCTION")
+            response = await axios.post('https://hases-backend.onrender.com/api/upload?fileType=resume&accountType=job-seeker', { file: req.files[1], user_id: req.user_id });
+          else
+            response = await axios.post('http://localhost:3000/api/upload?fileType=resume&accountType=job-seeker', { file: req.files[1], user_id: req.user_id });
           req.body.resume = response.data.fileLink.replace('dl=0', 'dl=1');
         }
       } catch (ex) { console.log("Error uploading files!"); }

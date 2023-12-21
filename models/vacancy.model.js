@@ -24,15 +24,15 @@ const Vacancy = mongoose.model('Vacancy', vacancySchema);
 const validateVacancy = function (vacancy) {
   const schema = Joi.object({
     title: Joi.string().required(),
-    description: Joi.string().required(),
     location: Joi.string().required(),
-
+    description: Joi.string().required(),
+    
     job_category: Joi.string().required(),
     job_skills: Joi.array().items(Joi.string().required()).min(1).required(),
 
+    salary: Joi.number().min(0).required(),
     openings: Joi.number().min(1),
     employment_type: Joi.string(),
-    salary: Joi.number().min(0).required(),
     job_level: Joi.string().required(),
   });
 

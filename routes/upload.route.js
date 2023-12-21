@@ -61,7 +61,7 @@ router.post('/', upload.single('file'), (req, res) => {
     })
     .catch((error) => {
       console.error('Error uploading file to Dropbox:', error);
-      res.status(500).send('Error uploading file to Dropbox.');
+      return res.status(500).send('Error uploading file to Dropbox.');
     });
 });
 

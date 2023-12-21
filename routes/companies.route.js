@@ -12,22 +12,17 @@ const upload = multer({ dest: 'uploads/' });
 const router = express.Router();
 
 router
-  .get('/categories', authorization, async (req, res) => {
-    let categories = await JobCategory.find({}).select('category');
-    res.send(categories);
-  })
-  .get('/:category_id/skills', authorization, async (req, res) => {
-    const category_id = req.params.category_id;
-    let skills = await JobCategory.find({_id: category_id}).select('skills');
-    res.send(skills);
-  })
   .post('/new-profile', [authorization, upload.single("file")], async (req, res) => {
     const { error } = validateCompanyProfile(req.body);
     if (error) return res.status(400).send(error.details[0].message);
     if (req.file) {
-      const response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=company', { file: req.file, user_id: req.user_id });
+      let response;
+      if (process.env.STATUS === "PRODUCTION")
+        response = await axios.post('https://hases-backend.onrender.com/api/upload?fileType=image&accountType=company', { file: req.file, user_id: req.user_id });
+      else
+        response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=company', { file: req.file, user_id: req.user_id });
+
       req.body.company_logo = response.data.fileLink + "&raw=1";
-      console.log(req.body.company_logo);
     }
 
     req.user_id = new mongoose.Types.ObjectId(req.user_id);
@@ -43,7 +38,12 @@ router
   })
   .put('/edit-profile', [authorization, upload.single('file')], async (req, res) => {
     if (req.file) {
-      const response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=company', { file: req.file, user_id: req.user_id });
+      let response;
+      if (process.env.STATUS === "PRODUCTION")
+        response = await axios.post('https://hases-backend.onrender.com/api/upload?fileType=image&accountType=company', { file: req.file, user_id: req.user_id });
+      else
+        response = await axios.post('http://localhost:3000/api/upload?fileType=image&accountType=company', { file: req.file, user_id: req.user_id });
+
       if (response.data.fileLink)
         req.body.company_logo = response.data.fileLink + "&raw=1";
     }

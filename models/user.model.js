@@ -5,7 +5,14 @@ const userSchema = new mongoose.Schema({
   user_name: String,
   email: String,
   password: String,
-  role: {type: String, default: "guest"}
+  role: { type: String, default: "guest" },
+  verification: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {
+      code: "",
+      isVerified: false
+    }
+  }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -21,4 +28,4 @@ const validateUserAccount = function (userAccount) {
   return schema.validate(userAccount);
 }
 
-module.exports = { User, validateUserAccount};
+module.exports = { User, validateUserAccount };

@@ -58,7 +58,7 @@ const validateJobSeekerProfile = function (jobSeekerProfile) {
     gender: Joi.string().valid('Male', 'Female').required(),
     dob: Joi.date().iso().required(),
 
-    user_image: Joi.string().required(),
+    user_image: Joi.string().optional(),
     education: Joi.array().items(Joi.object({
       certificate_degree_name: Joi.string().required(),
       major: Joi.string().required(),
@@ -67,7 +67,7 @@ const validateJobSeekerProfile = function (jobSeekerProfile) {
       completion_date: Joi.date().required(),
       percentage: Joi.number().optional(),
       cgpa: Joi.number().required()
-    })).min(1).required(),
+    })).optional(),
     experience: Joi.array().items(Joi.object({
       job_title: Joi.string().required(),
       company_name: Joi.string().required(),
@@ -76,8 +76,8 @@ const validateJobSeekerProfile = function (jobSeekerProfile) {
       start_date: Joi.date().required(),
       end_date: Joi.date().required()
     })).optional(),
-    job_set: Joi.array().items(Joi.string().required()).min(1).required(),
-    skill_set: Joi.array().items(Joi.string().required()).min(1).required(),
+    job_set: Joi.array().items(Joi.string().required()).optional(),
+    skill_set: Joi.array().items(Joi.string().required()).optional(),
     resume: Joi.string().optional()
   });
 

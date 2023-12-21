@@ -7,24 +7,28 @@ const authRoute = require('./routes/auth.route');
 const registerRoute = require('./routes/register.route');
 const vacanciesRoute = require('./routes/vacancies.route');
 const uploadFilesRoute = require('./routes/upload.route');
+const verifyUsersRoute = require('./routes/verify.route');
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use('/api/job-seeker', jobSeekersRoute);
 app.use('/api/company', companiesRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/register', registerRoute);
 app.use('/api/vacancy', vacanciesRoute);
 app.use('/api/upload', uploadFilesRoute);
+app.use('/api/verify', verifyUsersRoute);
 
-//const port = process.env.PORT;
-//const dbUrl = process.env.ATLAS_DATABASE;
-const port = 3000;
-const dbUrl = "mongodb://127.0.0.1:27017/job-market-place";
+let PORT = 3000;
+let DB_HOST = "mongodb://127.0.0.1:27017/job-market-place";
+if (process.env.STATUS === "PRODUCTION") {
+  PORT = process.env.PORT;
+  DB_HOST = process.env.ATLAS_DATABASE;
+}
 
-app.listen(port, () => console.log(`Server started on port ${port}`));
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 mongoose
-    .connect(dbUrl)
-    .then((mdb) => console.log(`Database connected on port ${mdb.connection.port}`))
-    .catch((reason) => console.log(`\nError connecting to database: \n${reason}`));
+  .connect(DB_HOST)
+  .then((mdb) => console.log(`Database connected on port ${mdb.connection.port}`))
+  .catch((reason) => console.log(`\nError connecting to database: \n${reason}`));
