@@ -4,7 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 const { Dropbox } = require('dropbox');
 
-const upload = multer({ dest: 'uploads/', limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
 const router = express.Router();
 
 router.post('/', upload.single('file'), (req, res) => {
