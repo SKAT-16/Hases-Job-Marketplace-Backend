@@ -1,3 +1,4 @@
+const axios = require('axios');
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -6,33 +7,37 @@ const { Dropbox } = require('dropbox');
 const upload = multer({ dest: 'uploads/', limits: { fileSize: 5 * 1024 * 1024 } });
 const router = express.Router();
 
-const accessToken = process.env.DROPBOX_ACCESS_TOKEN; // Replace with your own access token
-const dropbox = new Dropbox({ accessToken });
-
 router.post('/', upload.single('file'), (req, res) => {
   const fileType = req.query.fileType;
   const accountType = req.query.accountType;
+  
   if (!req.body.file) {
     console.log(req.file);
     res.status(400).send('No file uploaded.');
     return;
   }
 
+  let dbx = new Dropbox({
+    clientId: process.env.DROPBOX_APP_KEY,
+    clientSecret: process.env.DROPBOX_APP_SECRET,
+    refreshToken: process.env.DROPBOX_REFRESH_TOKEN
+  });
+
   const fileName = req.body.file.originalname;
   const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1);
   const fileData = fs.readFileSync(req.body.file.path);
-  
+
   const uploadOptions = {
     path: `/${accountType}-data/${fileType}/${req.body.user_id}.${fileExtension}`,
     contents: fileData,
     mode: 'overwrite' // Overwrite existing file with the same name
   };
 
-  dropbox.filesUpload(uploadOptions)
+  dbx.filesUpload(uploadOptions)
     .then((response) => {
       const fileMetadata = response.result;
 
-      dropbox.sharingListSharedLinks({ path: fileMetadata.path_display })
+      dbx.sharingListSharedLinks({ path: fileMetadata.path_display })
         .then((listResponse) => {
           const sharedLinks = listResponse.result.links;
           if (sharedLinks.length > 0) {
@@ -41,7 +46,7 @@ router.post('/', upload.single('file'), (req, res) => {
             fs.unlinkSync(req.body.file.path);
             res.send({ fileLink: sharedLink });
           } else {
-            dropbox.sharingCreateSharedLinkWithSettings({ path: fileMetadata.path_display })
+            dbx.sharingCreateSharedLinkWithSettings({ path: fileMetadata.path_display })
               .then((linkResponse) => {
                 const sharedLink = linkResponse.result.url;
                 // Delete the file from the 'uploads/' folder
