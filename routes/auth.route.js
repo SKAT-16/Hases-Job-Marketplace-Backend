@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
       { email: req.body.credential }
     ]
   });
-  if (!user) return res.status(400).send('Invalid email or username');
+  if (!user) return res.status(400).send('Invalid credential');
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
   if (!validPassword) return res.status(400).send('Incorrect password');
