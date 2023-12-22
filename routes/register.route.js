@@ -24,9 +24,12 @@ router
     user.password = await bcrypt.hash(user.password, salt);
 
     user.verification.code = generateVerificationCode();
-    const emailStatus = await mailSender(user.email, user.verification.code);
-    if (!emailStatus.response.includes('OK'))
+    try {
+      await mailSender(user.email, user.verification.code);
+    } catch (ex) {
+      console.log(ex);
       return res.status(400).send('Unable to send verification code!');
+    }
 
     user = await user.save();
     res.send('User registered successfully!');

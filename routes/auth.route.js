@@ -23,15 +23,19 @@ router.post('/', async (req, res) => {
 
   if (!user.verification.isVerified) {
     user.verification.code = generateVerificationCode();
-    const emailStatus = await mailSender(user.email, user.verification.code);
-    if (!emailStatus.response.includes('OK'))
-      return res.status(400).send('Unable to send verification code!');
+    user = await user.save();
 
-    return res.status(400).send('Unverified user!');
+    try {
+      await mailSender(user.email, user.verification.code);
+      return res.status(400).send({ msg: 'Unverified user!', role: user.role });
+    } catch (ex) {
+      return res.status(400).send('Unable to send verification code!');
+    }
+
   }
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_PRIVATE_KEY);
-  res.send({ token, role: user.role});
+  res.send({ token, role: user.role });
 });
 
 const validateCredentials = (data) => {

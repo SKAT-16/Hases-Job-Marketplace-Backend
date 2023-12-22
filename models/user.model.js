@@ -7,11 +7,8 @@ const userSchema = new mongoose.Schema({
   password: String,
   role: { type: String, default: "guest" },
   verification: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {
-      code: "",
-      isVerified: false
-    }
+    code: { type: String, default: "" },
+    isVerified: { type: Boolean, default: false }
   }
 });
 
