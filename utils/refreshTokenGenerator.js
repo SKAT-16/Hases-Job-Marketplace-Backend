@@ -1,7 +1,8 @@
-const fetch = require('node-fetch');
-const app = require('express')();
+const fetch = require("node-fetch");
+const app = require("express")();
+const { Dropbox } = require("dropbox");
 
-const hostname = 'localhost';
+const hostname = "localhost";
 const port = 3000;
 
 const config = {
@@ -9,31 +10,39 @@ const config = {
   clientId: "kko7e5bxqix4h9t",
 };
 
-const { Dropbox } = require('dropbox'); // eslint-disable-line import/no-unresolved
-
 const dbx = new Dropbox(config);
-
 const redirectUri = `http://${hostname}:${port}/auth`;
 
-app.get('/', (req, res) => {
-  dbx.auth.getAuthenticationUrl(redirectUri, null, 'code', 'offline', null, 'none', true)
+app.get("/", (req, res) => {
+  dbx.auth
+    .getAuthenticationUrl(
+      redirectUri,
+      null,
+      "code",
+      "offline",
+      null,
+      "none",
+      true
+    )
     .then((authUrl) => {
       res.writeHead(302, { Location: authUrl });
       res.end();
     });
 });
 
-app.get('/auth', (req, res) => { // eslint-disable-line no-unused-vars
+app.get("/auth", (req, res) => {
   const { code } = req.query;
   console.log(`code:${code}`);
 
-  dbx.auth.getAccessTokenFromCode(redirectUri, code)
+  dbx.auth
+    .getAccessTokenFromCode(redirectUri, code)
     .then((token) => {
       console.log(`Token Result:${JSON.stringify(token)}`);
       dbx.auth.setRefreshToken(token.result.refresh_token);
-      dbx.usersGetCurrentAccount()
+      dbx
+        .usersGetCurrentAccount()
         .then((response) => {
-          console.log('response', response);
+          console.log("response", response);
         })
         .catch((error) => {
           console.error(error);
@@ -44,4 +53,4 @@ app.get('/auth', (req, res) => { // eslint-disable-line no-unused-vars
     });
 });
 
-app.listen(port, () => console.log('Server started!'));
+app.listen(port, () => console.log("Refresh token generator server started!"));

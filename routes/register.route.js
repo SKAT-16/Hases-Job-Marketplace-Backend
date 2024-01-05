@@ -1,39 +1,38 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { User, validateUserAccount } = require('../models/user.model');
-const mailSender = require('../utils/mailer');
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { User, validateUserAccount } = require("../models/user.model");
+const mailSender = require("../utils/mailer");
 
 const router = express.Router();
 
-router
-  .post('/account', async (req, res) => {
-    const { error } = validateUserAccount(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+router.post("/", async (req, res) => {
+  const { error } = validateUserAccount(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
-    let user = await User.findOne({ email: req.body.email });
-    if (user) return res.status(400).send('email already in use.');
+  let user = await User.findOne({ email: req.body.email });
+  if (user) return res.status(400).send("email already in use.");
 
-    user = await User.findOne({ user_name: req.body.user_name });
-    if (user) return res.status(400).send('username already in use.');
+  user = await User.findOne({ user_name: req.body.user_name });
+  if (user) return res.status(400).send("username already in use.");
 
-    user = new User(req.body);
-    user.role = req.body.role;
+  user = new User(req.body);
+  user.role = req.body.role;
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
 
-    user.verification.code = generateVerificationCode();
-    try {
-      await mailSender(user.email, user.verification.code);
-    } catch (ex) {
-      console.log(ex);
-      return res.status(400).send('Unable to send verification code!');
-    }
+  user.verification.code = generateVerificationCode();
+  try {
+    await mailSender(user.email, user.verification.code);
+  } catch (ex) {
+    console.log(ex);
+    return res.status(400).send("Unable to send verification code!");
+  }
 
-    user = await user.save();
-    res.send('User registered successfully!');
-  });
+  await user.save();
+  res.send("User registered successfully!");
+});
 
 function generateVerificationCode() {
   const codeLength = 6;

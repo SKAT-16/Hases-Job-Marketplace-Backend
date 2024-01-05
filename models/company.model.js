@@ -2,7 +2,7 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 
 const companySchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
   company_name: String,
   company_email: String,
@@ -10,33 +10,36 @@ const companySchema = new mongoose.Schema({
 
   company_logo: {
     type: String,
-    default: "",
+    default:
+      "https://www.dropbox.com/scl/fi/qn6t64ifr437x5scy0dli/default-profile.png?rlkey=2hvb0wmhvw43m1zp8m91fns7b&dl=0&raw=1",
   },
   buisness_stream: String,
   profile_description: String,
   establishment_date: Date,
   company_website: {
     type: String,
-    default: "-"
+    default: "-",
   },
 
   profile_completed: {
     type: Boolean,
-    default: false
+    default: false,
   },
   created_at: { type: Date, default: Date.now },
-  updated_at: Date
+  updated_at: Date,
 });
 
-const Company = mongoose.model('Company', companySchema);
+const Company = mongoose.model("Company", companySchema);
 
 const validateCompanyProfile = function (companyProfile) {
   const schema = Joi.object({
     company_name: Joi.string().min(2).required(),
     company_email: Joi.string().email().required(),
-    phone: Joi.string().pattern(/^(\+251|0)[1-57-9]\d{8}$/).required(),
+    phone: Joi.string()
+      .pattern(/^(\+251|0)[1-57-9]\d{8}$/)
+      .required(),
 
-    buisness_stream: Joi.string().required(),
+    business_stream: Joi.string().required(),
     profile_description: Joi.string().required(),
     establishment_date: Joi.date().required(),
     company_website: Joi.string().optional(),
@@ -44,7 +47,7 @@ const validateCompanyProfile = function (companyProfile) {
   });
 
   return schema.validate(companyProfile);
-}
+};
 
 const checkCompanyProfileCompletion = (companyProfile) => {
   // Check if the profile_completed field is set to true
@@ -56,10 +59,10 @@ const checkCompanyProfileCompletion = (companyProfile) => {
       company_email,
       phone,
       company_logo,
-      buisness_stream,
+      business_stream,
       profile_description,
       establishment_date,
-      company_website
+      company_website,
     } = companyProfile;
 
     if (
@@ -67,7 +70,7 @@ const checkCompanyProfileCompletion = (companyProfile) => {
       company_email &&
       phone &&
       company_logo &&
-      buisness_stream &&
+      business_stream &&
       profile_description &&
       establishment_date &&
       company_website
@@ -79,4 +82,8 @@ const checkCompanyProfileCompletion = (companyProfile) => {
   }
 };
 
-module.exports = { Company, checkCompanyProfileCompletion, validateCompanyProfile };
+module.exports = {
+  Company,
+  checkCompanyProfileCompletion,
+  validateCompanyProfile,
+};
