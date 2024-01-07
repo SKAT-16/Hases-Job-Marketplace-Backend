@@ -8,20 +8,39 @@ const { Company } = require("../models/company.model");
 const { Applicant, validateApplicant } = require("../models/applicant.model");
 
 router
-  .get("/my-applications", authorization, async (req, res) => {
+  .get("/my-application", authorization, async (req, res) => {
+    const application = await Applicant.findOne({
+      job_seeker_id: req.user_id,
+    }).populate(
+      "vacancy_id",
+      "title description location job_category job_skills openings employment_type salary job_level"
+    );
+
+    res.send(application);
+  })
+  .get("/all-applications", authorization, async (req, res) => {
     const applications = await Applicant.find({
       job_seeker_id: req.user_id,
-    })
-      .populate("vacancy_id", "title")
-      .populate("job_seeker_id", "name");
+    }).populate(
+      "vacancy_id",
+      "title openings employment_type salary job_level"
+    );
+
     res.send(applications);
   })
-  .get("/my-applicants", authorization, async (req, res) => {
+  .get("/my-applicant", authorization, async (req, res) => {
+    const applicant = await Applicant.findOne({
+      job_seeker_id: req.user_id,
+      vacancy_id: req.body.vacancy_id,
+    }).populate("job_seeker_id");
+
+    res.send(applicant);
+  })
+  .get("/all-applicants", authorization, async (req, res) => {
     const applicants = await Applicant.find({
       vacancy_id: req.body.vacancy_id,
-    })
-      .populate("vacancy_id", "title")
-      .populate("job_seeker_id", "name");
+    }).populate("job_seeker_id", "first_name last_name user_image resume");
+
     res.send(applicants);
   })
   .post("/apply", authorization, async (req, res) => {

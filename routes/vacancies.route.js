@@ -46,9 +46,6 @@ router
     if (vacancyCount !== 0)
       pagedVacancies = await Vacancy.find(query)
         .sort("created_at: -1")
-        .select(
-          "_id company_id title job_category employment_type job_level openings"
-        )
         .populate("company_id", "company_name company_logo")
         .populate("job_category", "category_name")
         .skip((pageNumber - 1) * pageSize)

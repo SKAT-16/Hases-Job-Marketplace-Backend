@@ -1,3 +1,4 @@
+const Joi = require("joi");
 const mongoose = require("mongoose");
 
 const applicantSchema = new mongoose.Schema({
@@ -15,10 +16,11 @@ const applicantSchema = new mongoose.Schema({
 const Applicant = mongoose.model("Applicant", applicantSchema);
 const validateApplicant = function (applicant) {
   const schema = Joi.object({
+    vacancy_id: Joi.string().required(),
     cover_letter: Joi.string().required(),
   });
 
-  return schema.validate(exampleData);
+  return schema.validate(applicant);
 };
 
 module.exports = { Applicant, validateApplicant };

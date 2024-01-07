@@ -13,7 +13,7 @@ const companySchema = new mongoose.Schema({
     default:
       "https://www.dropbox.com/scl/fi/qn6t64ifr437x5scy0dli/default-profile.png?rlkey=2hvb0wmhvw43m1zp8m91fns7b&dl=0&raw=1",
   },
-  buisness_stream: String,
+  business_stream: String,
   profile_description: String,
   establishment_date: Date,
   company_website: {
