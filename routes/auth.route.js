@@ -1,25 +1,24 @@
-const express = require('express');
-const Joi = require('joi');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const express = require("express");
+const Joi = require("joi");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const router = express.Router();
-const { User, validateUserAccount } = require('../models/user.model');
-const mailSender = require('../utils/mailer');
+const { User, validateUserAccount } = require("../models/user.model");
+const { Company } = require("../models/company.model");
+const { JobSeeker } = require("../models/job_seeker.model");
+const mailSender = require("../utils/mailer");
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const { error } = validateCredentials(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   let user = await User.findOne({
-    $or: [
-      { user_name: req.body.credential },
-      { email: req.body.credential }
-    ]
+    $or: [{ user_name: req.body.credential }, { email: req.body.credential }],
   });
-  if (!user) return res.status(400).send('Invalid credential');
+  if (!user) return res.status(400).send("Invalid credential");
 
   const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).send('Incorrect password');
+  if (!validPassword) return res.status(400).send("Incorrect password");
 
   if (!user.verification.isVerified) {
     user.verification.code = generateVerificationCode();
@@ -27,12 +26,22 @@ router.post('/', async (req, res) => {
 
     try {
       await mailSender(user.email, user.verification.code);
-      return res.status(400).send({ msg: 'Unverified user!', role: user.role });
+      return res.status(400).send({ msg: "Unverified user!", role: user.role });
     } catch (ex) {
-      return res.status(400).send('Unable to send verification code!');
+      return res.status(400).send("Unable to send verification code!");
     }
-
   }
+
+  let role;
+  if (user.role === "company")
+    role = await Company.findOne({ user_id: req.user_id });
+  else if (user.role === "job-seeker")
+    role = await JobSeeker.findOne({ user_id: req.user_id });
+
+  if (!role)
+    return res
+      .status(400)
+      .send({ msg: "Incomplete user profile!", role: user.role });
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_PRIVATE_KEY);
   res.send({ token, role: user.role });
@@ -41,11 +50,11 @@ router.post('/', async (req, res) => {
 const validateCredentials = (data) => {
   const schema = Joi.object({
     credential: Joi.string().required(),
-    password: Joi.string().min(8).required()
+    password: Joi.string().min(8).required(),
   });
 
   return schema.validate(data);
-}
+};
 
 function generateVerificationCode() {
   const codeLength = 6;
