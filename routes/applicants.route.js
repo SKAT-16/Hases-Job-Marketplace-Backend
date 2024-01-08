@@ -59,7 +59,13 @@ router
   .get("/all-applicants", authorization, async (req, res) => {
     const applicants = await Applicant.find({
       vacancy_id: req.body.vacancy_id,
-    }).populate("job_seeker_id", "first_name last_name user_image resume");
+    })
+      .sort("apply_date: -1")
+      .populate("job_seeker_id", "first_name last_name user_image resume")
+      .populate(
+        "vacancy_id",
+        "title job_category job_skills openings employment_type job_level"
+      );
 
     res.send(applicants);
   })
@@ -75,12 +81,17 @@ router
       job_seeker_id: req.body.job_seeker_id,
       vacancy_id: req.body.vacancy_id,
     });
+    // const vacancy = await Vacancy.findOneAndUpdate(
+    //   { _id: req.body.vacancy_id },
+    //   { $inc: { openings: -1 } },
+    //   { new: true }
+    // );
 
     const result = await applicant.save();
     res.send(result);
   })
   .put("/update-status", authorization, async (req, res) => {
-    const applicant = await Applicant.find({
+    const applicant = await Applicant.findOne({
       job_seeker_id: req.body.job_seeker_id,
       vacancy_id: req.body.vacancy_id,
     });

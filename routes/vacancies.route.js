@@ -5,6 +5,8 @@ const authorization = require("../middleware/authorization");
 const { Vacancy, validateVacancy } = require("../models/vacancy.model");
 const JobCategory = require("../models/job_category.model");
 const { Company } = require("../models/company.model");
+const { JobSeeker } = require("../models/job_seeker.model");
+const { Applicant } = require("../models/applicant.model");
 
 router
   .get("/", authorization, async (req, res) => {
@@ -41,6 +43,14 @@ router
       query.job_level = level;
     }
 
+    const job_seeker = await JobSeeker.findOne({ user_id: req.user_id });
+    const appliedVacancies = await Applicant.find({
+      job_seeker_id: job_seeker._id,
+    }).distinct("vacancy_id");
+
+    query._id = { $nin: appliedVacancies };
+    query.openings = { $gt: 0 };
+
     const vacancyCount = await Vacancy.countDocuments(query);
     let pagedVacancies = [];
     if (vacancyCount !== 0)
@@ -53,9 +63,18 @@ router
 
     res.send({ pagedVacancies, vacancyCount });
   })
+  .get("/my-vacancy/:id", authorization, async (req, res) => {
+    let company = await Company.findOne({ user_id: req.user_id });
+    const vacancy = await Vacancy.findOne({
+      _id: req.params.id,
+      company_id: company._id,
+    });
+
+    res.send(vacancy);
+  })
   .get("/my-vacancies", authorization, async (req, res) => {
-    let company_id = await Company.findOne({ user_id: req.user_id });
-    const vacancies = await Vacancy.find({ company_id: company_id })
+    let company = await Company.findOne({ user_id: req.user_id });
+    const vacancies = await Vacancy.find({ company_id: company._id })
       .sort("created_at")
       .select(
         "_id title job_category employment_type openings salary job_level"
@@ -81,9 +100,8 @@ router
     const { error } = validateVacancy(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    req.body.company_id = new mongoose.Types.ObjectId(
-      await Company.findOne({ user_id: req.user_id })
-    );
+    const company = await Company.findOne({ user_id: req.user_id });
+    req.body.company_id = new mongoose.Types.ObjectId(company._id);
     let vacancy = new Vacancy(req.body);
     vacancy = await vacancy.save();
 
@@ -93,7 +111,7 @@ router
     const { error } = validateVacancy(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    let vacancy = new Vacancy.findById(req.body.vacancy_id);
+    let vacancy = await Vacancy.findById(req.body.vacancy_id);
     if (!vacancy) return res.status(400).send("Vacancy not found!");
 
     vacancy.set(req.body);
