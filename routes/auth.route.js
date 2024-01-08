@@ -39,14 +39,8 @@ router.post("/", async (req, res) => {
     role = await JobSeeker.findOne({ user_id: user._id });
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_PRIVATE_KEY);
-  let data = {};
-  if (!role)
-    data = {
-      token,
-      msg: "Incomplete user profile!",
-      role: user.role,
-    };
-  else data = { token, role: user.role };
+  let data = { token, role: user.role };
+  if (!role) data.msg = "Incomplete user profile!";
 
   res.send(data);
 });
