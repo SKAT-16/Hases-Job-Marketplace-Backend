@@ -34,17 +34,21 @@ router.post("/", async (req, res) => {
 
   let role;
   if (user.role === "company")
-    role = await Company.findOne({ user_id: req.user_id });
+    role = await Company.findOne({ user_id: user._id });
   else if (user.role === "job-seeker")
-    role = await JobSeeker.findOne({ user_id: req.user_id });
-
-  if (!role)
-    return res
-      .status(400)
-      .send({ msg: "Incomplete user profile!", role: user.role });
+    role = await JobSeeker.findOne({ user_id: user._id });
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_PRIVATE_KEY);
-  res.send({ token, role: user.role });
+  let data = {};
+  if (!role)
+    data = {
+      token,
+      msg: "Incomplete user profile!",
+      role: user.role,
+    };
+  else data = { token, role: user.role };
+
+  res.send(data);
 });
 
 const validateCredentials = (data) => {
