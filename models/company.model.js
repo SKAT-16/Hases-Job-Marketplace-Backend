@@ -43,7 +43,7 @@ const validateCompanyProfile = function (companyProfile) {
     profile_description: Joi.string().required(),
     establishment_date: Joi.date().required(),
     company_website: Joi.string().optional(),
-    company_logo: Joi.string().required(),
+    company_logo: Joi.string().optional(),
   });
 
   return schema.validate(companyProfile);
