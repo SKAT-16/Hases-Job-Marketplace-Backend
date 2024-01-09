@@ -50,6 +50,7 @@ router
 
     query._id = { $nin: appliedVacancies };
     query.openings = { $gt: 0 };
+    query.status = "open";
 
     const vacancyCount = await Vacancy.countDocuments(query);
     let pagedVacancies = [];
@@ -77,7 +78,7 @@ router
     const vacancies = await Vacancy.find({ company_id: company._id })
       .sort("created_at")
       .select(
-        "_id title job_category employment_type openings salary job_level"
+        "_id title job_category employment_type openings salary job_level status"
       )
       .populate("job_category", "category_name");
 
@@ -118,6 +119,15 @@ router
     vacancy = await vacancy.save();
 
     res.send(`Vacancy: ${vacancy._id} updated!`);
+  })
+  .put("/update-status", authorization, async (req, res) => {
+    let vacancy = await Vacancy.findById(req.body.vacancy_id);
+    if (!vacancy) return res.status(400).send("Vacancy not found!");
+
+    vacancy.status = req.body.status === "open" ? "closed" : "open";
+    const result = await vacancy.save();
+
+    res.send("Vacancy: " + result._id + " updated status to " + result.status);
   });
 
 module.exports = router;
