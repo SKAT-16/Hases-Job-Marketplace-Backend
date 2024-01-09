@@ -36,31 +36,46 @@ router
             ? "https://hases-backend.onrender.com/api"
             : "http://localhost:3000/api";
 
-        let response;
-        if (req.files[0]) {
-          try {
-            response = await axios.post(
-              uploadUrl + "/upload?fileType=image&accountType=job-seeker",
-              { file: req.files[0], user_id: req.user_id }
-            );
-            req.body.user_image = response.data.fileLink + "&raw=1";
-          } catch (ex) {
-            return res
-              .status(400)
-              .send("Error uploading profile image: " + ex.response);
-          }
-        }
-        if (req.files[1]) {
-          try {
-            response = await axios.post(
-              uploadUrl + "/upload?fileType=resume&accountType=job-seeker",
-              { file: req.files[1], user_id: req.user_id }
-            );
-            req.body.resume = response.data.fileLink.replace("dl=0", "dl=1");
-          } catch (ex) {
-            return res
-              .status(400)
-              .send("Error uploading resume: " + ex.response);
+        for (let i = 0; i < req.files.length; i++) {
+          const file = req.files[i];
+          if (file) {
+            if (file.mimetype.startsWith("image/")) {
+              try {
+                const response = await axios.post(
+                  uploadUrl + "/upload?fileType=image&accountType=job-seeker",
+                  { file: file, user_id: req.user_id }
+                );
+                req.body.user_image = response.data.fileLink + "&raw=1";
+              } catch (ex) {
+                return res
+                  .status(400)
+                  .send("Error uploading profile image: " + ex.response);
+              }
+            } else if (
+              file.mimetype === "application/pdf" ||
+              file.mimetype === "application/msword" ||
+              file.mimetype ===
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ) {
+              try {
+                const response = await axios.post(
+                  uploadUrl + "/upload?fileType=resume&accountType=job-seeker",
+                  { file: file, user_id: req.user_id }
+                );
+                req.body.resume = response.data.fileLink.replace(
+                  "dl=0",
+                  "dl=1"
+                );
+              } catch (ex) {
+                return res
+                  .status(400)
+                  .send("Error uploading resume: " + ex.response);
+              }
+            } else {
+              return res
+                .status(400)
+                .send("Unsupported file type: " + file.mimetype);
+            }
           }
         }
       }
@@ -95,31 +110,46 @@ router
             ? "https://hases-backend.onrender.com/api"
             : "http://localhost:3000/api";
 
-        let response;
-        if (req.files[0]) {
-          try {
-            response = await axios.post(
-              uploadUrl + "/upload?fileType=image&accountType=job-seeker",
-              { file: req.files[0], user_id: req.user_id }
-            );
-            req.body.user_image = response.data.fileLink + "&raw=1";
-          } catch (ex) {
-            return res
-              .status(400)
-              .send("Error uploading profile image: " + ex.response);
-          }
-        }
-        if (req.files[1]) {
-          try {
-            response = await axios.post(
-              uploadUrl + "/upload?fileType=resume&accountType=job-seeker",
-              { file: req.files[1], user_id: req.user_id }
-            );
-            req.body.resume = response.data.fileLink.replace("dl=0", "dl=1");
-          } catch (ex) {
-            return res
-              .status(400)
-              .send("Error uploading resume: " + ex.response);
+        for (let i = 0; i < req.files.length; i++) {
+          const file = req.files[i];
+          if (file) {
+            if (file.mimetype.startsWith("image/")) {
+              try {
+                const response = await axios.post(
+                  uploadUrl + "/upload?fileType=image&accountType=job-seeker",
+                  { file: file, user_id: req.user_id }
+                );
+                req.body.user_image = response.data.fileLink + "&raw=1";
+              } catch (ex) {
+                return res
+                  .status(400)
+                  .send("Error uploading profile image: " + ex.response);
+              }
+            } else if (
+              file.mimetype === "application/pdf" ||
+              file.mimetype === "application/msword" ||
+              file.mimetype ===
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ) {
+              try {
+                const response = await axios.post(
+                  uploadUrl + "/upload?fileType=resume&accountType=job-seeker",
+                  { file: file, user_id: req.user_id }
+                );
+                req.body.resume = response.data.fileLink.replace(
+                  "dl=0",
+                  "dl=1"
+                );
+              } catch (ex) {
+                return res
+                  .status(400)
+                  .send("Error uploading resume: " + ex.response);
+              }
+            } else {
+              return res
+                .status(400)
+                .send("Unsupported file type: " + file.mimetype);
+            }
           }
         }
       }
