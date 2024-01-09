@@ -18,6 +18,12 @@ const upload = multer({ dest: "uploads/" });
 const router = express.Router();
 
 router
+  .get("/me", authorization, async (req, res) => {
+    const jobSeeker = await JobSeeker.findOne({ user_id: req.user_id });
+    if (!jobSeeker) return res.status(404).send("Job Seeker not found");
+    
+    res.send(jobSeeker);
+  })
   .post(
     "/new-profile",
     [authorization, upload.array("files", 2)],

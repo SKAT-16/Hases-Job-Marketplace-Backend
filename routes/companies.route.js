@@ -16,6 +16,12 @@ const upload = multer({ dest: "uploads/" });
 const router = express.Router();
 
 router
+  .get("/me", authorization, async (req, res) => {
+    const company = await Company.findOne({ user_id: req.user_id });
+    if (!company) return res.status(404).send("Company not found");
+
+    res.send(company);
+  })
   .post(
     "/new-profile",
     [authorization, upload.single("file")],
