@@ -56,7 +56,7 @@ router
     let pagedVacancies = [];
     if (vacancyCount !== 0)
       pagedVacancies = await Vacancy.find(query)
-        .sort("created_at: -1")
+        .sort({ created_at: -1 })
         .populate("company_id", "company_name company_logo")
         .populate("job_category", "category_name")
         .skip((pageNumber - 1) * pageSize)
