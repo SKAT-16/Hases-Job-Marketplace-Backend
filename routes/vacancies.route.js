@@ -128,6 +128,21 @@ router
     const result = await vacancy.save();
 
     res.send("Vacancy: " + result._id + " updated status to " + result.status);
+  })
+  .delete("/my-vacancy/:id", authorization, async (req, res) => {
+    const company = await Company.findOne({ user_id: req.user_id });
+    req.body.company_id = new mongoose.Types.ObjectId(company._id);
+    req.body.vacancy_id = new mongoose.Types.ObjectId(req.params.id);
+
+    const applications = await Applicant.deleteMany({
+      vacancy_id: req.body.vacancy_id,
+    });
+
+    const result = await Vacancy.deleteOne({
+      _id: req.body.vacancy_id,
+    });
+
+    res.send("Vacancy: " + result._id + " deleted!");
   });
 
 module.exports = router;
