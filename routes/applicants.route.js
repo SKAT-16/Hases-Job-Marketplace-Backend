@@ -81,11 +81,6 @@ router
       job_seeker_id: req.body.job_seeker_id,
       vacancy_id: req.body.vacancy_id,
     });
-    // const vacancy = await Vacancy.findOneAndUpdate(
-    //   { _id: req.body.vacancy_id },
-    //   { $inc: { openings: -1 } },
-    //   { new: true }
-    // );
 
     const result = await applicant.save();
     res.send(result);
@@ -101,6 +96,19 @@ router
     const result = await applicant.save();
 
     res.send(result);
+  })
+  .delete("/my-application/:id", authorization, async (req, res) => {
+    req.body.job_seeker_id = new mongoose.Types.ObjectId(
+      await JobSeeker.findOne({ user_id: req.user_id })
+    );
+
+    const application = await Applicant.findByIdAndDelete({
+      _id: req.params.id,
+      job_seeker_id: req.body.job_seeker_id,
+    });
+
+    if (!application) return res.status(400).send("Applicant not found!");
+    res.send("Application:" + application._id + " deleted!");
   });
 
 module.exports = router;
