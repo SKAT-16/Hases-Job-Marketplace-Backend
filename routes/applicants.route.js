@@ -60,7 +60,7 @@ router
     const applicants = await Applicant.find({
       vacancy_id: req.body.vacancy_id,
     })
-      .sort("apply_date: -1")
+      .sort({ apply_date: -1 })
       .populate("job_seeker_id", "first_name last_name user_image resume")
       .populate(
         "vacancy_id",

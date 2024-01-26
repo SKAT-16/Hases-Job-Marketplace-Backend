@@ -76,9 +76,9 @@ router
   .get("/my-vacancies", authorization, async (req, res) => {
     let company = await Company.findOne({ user_id: req.user_id });
     const vacancies = await Vacancy.find({ company_id: company._id })
-      .sort("created_at")
+      .sort({ created_at: -1 })
       .select(
-        "_id title job_category employment_type openings salary job_level status"
+        "_id title job_category employment_type openings salary job_level status created_at"
       )
       .populate("job_category", "category_name");
 
